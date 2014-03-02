@@ -34,9 +34,7 @@ public enum ListType {
     DISPENSERS("dispensers list");
     
     private final String listName;
-    
-    private final List<String> blockList = new ArrayList<String>();
-    
+   
     /**
      * Constructs the list.
      * @param listName The name of the list.
@@ -52,13 +50,5 @@ public enum ListType {
     @Override
     public final String toString() {
         return listName;
-    }
-    
-    /**
-     * Gets the list associated with the enum.
-     * @return The List.
-     */
-    public final List<String> getList() {
-        return blockList;
     }
 }

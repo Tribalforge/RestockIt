@@ -5,7 +5,10 @@
 
 package org.cp23.restockit;
 
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,6 +20,8 @@ public class RestockIt extends JavaPlugin {
     public static RestockIt plugin;
     private static boolean debugEnabled = false;
     private static boolean schedDebugEnabled = false;
+    
+    private static Map<ListType, List<String>> lists;
     
     /**
      * Runs when the plugin enables.
@@ -38,10 +43,7 @@ public class RestockIt extends JavaPlugin {
     @Override
     public void onDisable(){
         // Clear the lists in the enums.
-        ListType.BLACKLIST.getList().clear();
-        ListType.SINGLE.getList().clear();
-        ListType.DOUBLE.getList().clear();
-        ListType.DISPENSERS.getList().clear();
+        lists = null;
         
         // Clear the permissions manager.
         RIPermissionManager.clearPermissionsManager();
@@ -52,16 +54,13 @@ public class RestockIt extends JavaPlugin {
      */
     public void loadConfig() {
         // Clear the lists in the enums.
-        ListType.BLACKLIST.getList().clear();
-        ListType.SINGLE.getList().clear();
-        ListType.DOUBLE.getList().clear();
-        ListType.DISPENSERS.getList().clear();
+        lists = new EnumMap<ListType, List<String>>(ListType.class);
         
         //Load config
-        ListType.BLACKLIST.getList().addAll(RestockIt.plugin.getConfig().getStringList("blacklist"));
-        ListType.SINGLE.getList().addAll(RestockIt.plugin.getConfig().getStringList("singleContainers"));
-        ListType.DOUBLE.getList().addAll(RestockIt.plugin.getConfig().getStringList("doubleContainers"));
-        ListType.DISPENSERS.getList().addAll(RestockIt.plugin.getConfig().getStringList("dispensers"));
+        lists.put(ListType.BLACKLIST, RestockIt.plugin.getConfig().getStringList("blacklist"));
+        lists.put(ListType.SINGLE, RestockIt.plugin.getConfig().getStringList("singleContainers"));
+        lists.put(ListType.DOUBLE, RestockIt.plugin.getConfig().getStringList("doubleContainers"));
+        lists.put(ListType.DISPENSERS, RestockIt.plugin.getConfig().getStringList("dispensers"));
         
         //Check config for errors (i.e. force any errors to be logged to console)
         isInList(Material.AIR, ListType.BLACKLIST);
@@ -106,7 +105,7 @@ public class RestockIt extends JavaPlugin {
      * @return <code>true</code> if so.
      */
     public static boolean isInList(Material mat, ListType type){
-        List<String> list = type.getList();
+        List<String> list = lists.get(type);
         
         // For each item in the list...
         for(String blItem : list) {
