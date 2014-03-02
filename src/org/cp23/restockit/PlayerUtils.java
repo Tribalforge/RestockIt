@@ -4,11 +4,9 @@
 
 package org.cp23.restockit;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import ru.tehkode.permissions.PermissionManager;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
+import org.cp23.restockit.permissionmanager.RIPermissionManager;
 
 class PlayerUtils extends RestockIt {
     //Colours for use in player messages:
@@ -74,33 +72,7 @@ class PlayerUtils extends RestockIt {
         debug("Deprecated Permission: " + depperm);
         Player player = riperm.getPlayer();
         
-        PermissionManager pm = Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx") ? PermissionsEx.getPermissionManager() : null;
-        //If using SuperPerms:
-        if(pm == null) {
-            RestockIt.debug(("Using SuperPerms"));
-            if(RestockIt.plugin.getConfig().getBoolean("opsOverrideBlacklist") && player.isOp() && "restockit.blacklist.bypass".equals(perm)) return true;
-            if(player.hasPermission(perm))return true;
-            if(depperm!=null && player.hasPermission(depperm)) {
-                warnDepPermissions(riperm);
-                return true;
-            }
-            
-        //If using PermissionsEx:
-        } else{
-            RestockIt.debug("Using PermissionsEx");
-            if(pm.has(player, perm, player.getWorld().getName())) return true;
-            if(depperm!=null && pm.has(player, depperm, player.getWorld().getName())) {
-                warnDepPermissions(riperm);
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    private static void warnDepPermissions(RIperm riperm){
-        RestockIt.log.warning("[RestockIt] Using deprecated permission: " + riperm.getDeprecatedPerm());
-        RestockIt.log.info("[RestockIt] Use " + riperm.getPerm() + " instead");
-        RestockIt.log.info("[RestockIt] See http://dev.bukkit.org/server-mods/restockit/ for more info");
+        // Use our Permission Manager to handle the permission check.
+        return RIPermissionManager.getPermissionManager().hasPermission(player, perm, depperm);
     }
 }

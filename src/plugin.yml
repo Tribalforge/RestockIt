@@ -1,6 +1,7 @@
 name: RestockIt
 main: org.cp23.restockit.RestockIt
-version: 1.9.2
+version: 1.10-dualspiral1-SNAPSHOT
+softdepend: [Vault, PermissionsEx]
 commands:
 
 permissions:
