@@ -13,7 +13,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.cp23.restockit.enums.ListType;
 
-class ContUtils extends RestockIt {
+class ContUtils {
     
     public static int getCurrentItems(Material item, Block cont) { //How many of item items are in container cont?
         int items = 0;
@@ -34,10 +34,10 @@ class ContUtils extends RestockIt {
     }
     
     public static boolean isSignAboveCont(Block cont) {
-        if(isContainer(cont.getType())) {  //Is it a container?
-            Block sign = SignUtils.getSignAboveCont(cont);
+        if(RestockIt.isContainer(cont.getType())) {  //Is it a container?
+            Sign sign = SignUtils.getSignAboveCont(cont);
             if(sign.getType() == Material.WALL_SIGN || sign.getType() == Material.SIGN_POST) { //Is there a sign above?
-                String line = ((Sign)sign.getState()).getLine(1);
+                String line = sign.getLine(1);
                 if(SignUtils.isRIsign(line)) return true;  //Is it a RestockIt sign?
             }
         }
@@ -45,10 +45,10 @@ class ContUtils extends RestockIt {
     }
     
     public static boolean isSignBelowCont(Block cont) {
-        if(isContainer(cont.getType())) {
-            Block sign = SignUtils.getSignBelowCont(cont);
+        if(RestockIt.isContainer(cont.getType())) {
+            Sign sign = SignUtils.getSignBelowCont(cont);
             if (sign.getType() == Material.WALL_SIGN || sign.getType() == Material.SIGN_POST) { //Is there a sign below
-                String line = ((Sign)sign.getState()).getLine(1);
+                String line = sign.getLine(1);
                 if(SignUtils.isRIsign(line)) return true;  //Is it a RestockIt sign?
             }
         }
@@ -59,45 +59,45 @@ class ContUtils extends RestockIt {
         return (isSignBelowCont(cont) || isSignAboveCont(cont));
     }
     
-    public static boolean isAlreadyRICont(Block sign) {
+    public static boolean isAlreadyRICont(Sign sign) {
         //Check below the sign
         Block block = sign.getWorld().getBlockAt(sign.getX(), sign.getY()-1, sign.getZ());
         int x = sign.getX(), y = sign.getY(), z = sign.getZ();
         Block posSign = block.getWorld().getBlockAt(x, y-2, z); //Possibly a sign
-        if (isContainer(block.getType()) && (posSign.getType() == Material.WALL_SIGN || posSign.getType() == Material.SIGN_POST)) {
+        if (RestockIt.isContainer(block.getType()) && (posSign.getType() == Material.WALL_SIGN || posSign.getType() == Material.SIGN_POST)) {
             return (SignUtils.isRIsign(((Sign)posSign.getState()).getLine(1)));
         }
         
         //Check above the sign
         block = sign.getWorld().getBlockAt(sign.getX(), sign.getY()+1, sign.getZ());
         posSign = block.getWorld().getBlockAt(x, y+2, z); //Possibly a sign
-        if (isContainer(block.getType()) && (posSign.getType() == Material.WALL_SIGN || posSign.getType() == Material.SIGN_POST)) {
+        if (RestockIt.isContainer(block.getType()) && (posSign.getType() == Material.WALL_SIGN || posSign.getType() == Material.SIGN_POST)) {
             return(SignUtils.isRIsign(((Sign)posSign.getState()).getLine(1)));
         }
         return false;
     }
     
-    public static Block getContFromSign(Block sign) {
+    public static Block getContFromSign(Sign sign) {
         //Try chest below sign first
         Block cont = sign.getWorld().getBlockAt(sign.getX(), sign.getY() - 1, sign.getZ());
-        if(isContainer(cont.getType())) return cont;
+        if(RestockIt.isContainer(cont.getType())) return cont;
         
         //Then chest above sign
         cont = sign.getWorld().getBlockAt(sign.getX(), sign.getY() + 1, sign.getZ());
-        if(isContainer(cont.getType())) return cont;
+        if(RestockIt.isContainer(cont.getType())) return cont;
         
         return null;
     }
     
     public static Block getDoubleChest(Block cont){
         //Return chest if there is one next to the block given
-        if(!isInList(cont.getType(), ListType.DOUBLE)) return null; //Only continue for containers that can be doubled
+        if(!RestockIt.isInList(cont.getType(), ListType.DOUBLE)) return null; //Only continue for containers that can be doubled
         int x = cont.getX(), y = cont.getY(), z = cont.getZ();
         World world = cont.getWorld();
-        if(isInList(world.getBlockAt(x+1, y, z).getType(), ListType.DOUBLE)) return world.getBlockAt(x+1, y, z);
-        if(isInList(world.getBlockAt(x-1, y, z).getType(), ListType.DOUBLE)) return world.getBlockAt(x-1, y, z);
-        if(isInList(world.getBlockAt(x, y, z+1).getType(), ListType.DOUBLE)) return world.getBlockAt(x, y, z+1);
-        if(isInList(world.getBlockAt(x, y, z-1).getType(), ListType.DOUBLE)) return world.getBlockAt(x, y, z-1);
+        if(RestockIt.isInList(world.getBlockAt(x+1, y, z).getType(), ListType.DOUBLE)) return world.getBlockAt(x+1, y, z);
+        if(RestockIt.isInList(world.getBlockAt(x-1, y, z).getType(), ListType.DOUBLE)) return world.getBlockAt(x-1, y, z);
+        if(RestockIt.isInList(world.getBlockAt(x, y, z+1).getType(), ListType.DOUBLE)) return world.getBlockAt(x, y, z+1);
+        if(RestockIt.isInList(world.getBlockAt(x, y, z-1).getType(), ListType.DOUBLE)) return world.getBlockAt(x, y, z-1);
         return null;
     }
     
@@ -120,7 +120,7 @@ class ContUtils extends RestockIt {
                 
                 if(ContUtils.isRICont(dc)){
                     //Prepare stuff for second chest if it's different
-                    Sign sign = (Sign)SignUtils.getSignFromCont(dc).getState();
+                    Sign sign = SignUtils.getSignFromCont(dc);
                     line = sign.getLine(2);
                     mat = SignUtils.getMaterial(line);
                     damage = SignUtils.getDamage(line);

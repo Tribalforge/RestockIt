@@ -11,7 +11,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-class SignUtils extends RestockIt {
+class SignUtils {
     
     public static Material getMaterial(String line){
         //Return material from line, else AIR
@@ -20,7 +20,7 @@ class SignUtils extends RestockIt {
     
     public static short getDamage(String line) {
         //Return damage from line, else 0
-        String dmgStr = (line.indexOf(":") >= 0 ? line : line+":0").split(":")[1];
+        String dmgStr = (line.contains(":") ? line : line+":0").split(":")[1];
         return Short.parseShort(dmgStr);
     }
     
@@ -59,8 +59,7 @@ class SignUtils extends RestockIt {
     }
     
     //Currently Unused
-    public static void setMaxItems(int items, Block block) {
-        Sign sign = (Sign)block.getState();
+    public static void setMaxItems(int items, Sign sign) {
         String part = sign.getLine(3).split(",")[1];
         sign.setLine(3, items + "," + part);
         sign.update();
@@ -87,8 +86,7 @@ class SignUtils extends RestockIt {
     }
     
     //Currently Unused
-    public static void setPeriod(float period, Block block) {
-        Sign sign = (Sign)block.getState();
+    public static void setPeriod(float period, Sign sign) {
         String part1 = sign.getLine(3).split(",")[0];
         String part2 = period%20 == 0 ? period/20 + "s" : period + "t";
         sign.setLine(3, part1 + ", " + part2);
@@ -111,7 +109,7 @@ class SignUtils extends RestockIt {
         return (str.contains("restockit") || str.contains("restock it") || str.contains("full chest") || str.contains("full dispenser"));
     }
     
-    public static void dropSign(Block sign) {
+    public static void dropSign(Sign sign) {
         //Remove the sign and drop one at its location
         Location loc = sign.getWorld().getBlockAt(sign.getX(), sign.getY(), sign.getZ()).getLocation();
         sign.setType(Material.AIR);
@@ -127,19 +125,19 @@ class SignUtils extends RestockIt {
         return line.toLowerCase().contains("incinerator");
     }
     
-    public static Block getSignFromCont(Block cont) {
+    public static Sign getSignFromCont(Block cont) {
         //Fairly simple, does what it says
         if(ContUtils.isSignAboveCont(cont)) return getSignAboveCont(cont);
         if(ContUtils.isSignBelowCont(cont)) return getSignBelowCont(cont);
         return null;
     }
     
-    public static Block getSignAboveCont(Block cont) {
-        return cont.getWorld().getBlockAt(cont.getX(), cont.getY() +1, cont.getZ());
+    public static Sign getSignAboveCont(Block cont) {
+        return (Sign)cont.getWorld().getBlockAt(cont.getX(), cont.getY() +1, cont.getZ()).getState();
     }
     
-    public static Block getSignBelowCont(Block cont) {
-        return cont.getWorld().getBlockAt(cont.getX(), cont.getY() -1, cont.getZ());
+    public static Sign getSignBelowCont(Block cont) {
+        return (Sign)cont.getWorld().getBlockAt(cont.getX(), cont.getY() -1, cont.getZ()).getState();
     }
     
     public static boolean line2hasErrors(String line, Player player) {

@@ -22,10 +22,10 @@ class RIperm{
         line = ln;
     }
     
-    public RIperm(Block bl, Player pl, Block sgn){
+    public RIperm(Block bl, Player pl, Sign sgn){
         block = bl;
         player = pl;
-        line = ((Sign)sgn.getState()).getLine(2);
+        line = sgn.getLine(2);
     }
     
     public void setCreated(){

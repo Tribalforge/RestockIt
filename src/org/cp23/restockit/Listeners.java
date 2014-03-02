@@ -31,20 +31,20 @@ class Listeners implements Listener {
         return null;
     }
     
-    private void eventTriggered(Block chest, String line2, String line3, Block sign){
+    private void eventTriggered(Block chest, String line2, String line3, Sign sign){
         if(SignUtils.isDelayedSign(line3, SignUtils.getMaterial(line2))){
-            Scheduler.startSchedule(sign, SignUtils.getPeriod(line3)); //If it's a delayed sign, start a schedule
+            Scheduler.startSchedule((Block)sign, SignUtils.getPeriod(line3)); //If it's a delayed sign, start a schedule
         } else ContUtils.fillCont(chest, line2); //If not, RestockIt.
         
         //New code for delayed double chests
         Block dc = ContUtils.getDoubleChest(chest);
         if (dc!=null){
-            Sign dcsign = (ContUtils.isRICont(dc)) ? ((Sign)SignUtils.getSignFromCont(dc).getState()) : null;
+            Sign dcsign = (ContUtils.isRICont(dc)) ? SignUtils.getSignFromCont(dc) : null;
 			if(dcsign!=null) {
 	            String dcline2 = dcsign.getLine(2);
     	        String dcline3 = dcsign.getLine(3);
         	    if(dcline3!=null && SignUtils.isDelayedSign(dcline3, SignUtils.getMaterial(dcline2)))
-            	    Scheduler.startSchedule(SignUtils.getSignFromCont(dc), SignUtils.getPeriod(dcline3));
+            	    Scheduler.startSchedule((Block)SignUtils.getSignFromCont(dc), SignUtils.getPeriod(dcline3));
 			}
         }
     }
@@ -52,7 +52,7 @@ class Listeners implements Listener {
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         RestockIt.debug("Sign Changed");
-        Block sign = event.getBlock();
+        Sign sign = (Sign)event.getBlock().getState();
         Player player = event.getPlayer();
         String[] lines = event.getLines();
         String line0 = lines[0], line1 = lines[1], line2 = lines[2], line3 = lines[3]; //Get the lines
@@ -131,9 +131,9 @@ class Listeners implements Listener {
             RestockIt.debug("... by a dispenser");
             if(ContUtils.isRICont(block)) {
                 RestockIt.debug("It's a RestockIt container");
-                Block sign = SignUtils.getSignFromCont(block);
-                String line2 = ((Sign)sign.getState()).getLine(2);
-                String line3 = ((Sign)sign.getState()).getLine(3);
+                Sign sign = SignUtils.getSignFromCont(block);
+                String line2 = sign.getLine(2);
+                String line3 = sign.getLine(3);
                 eventTriggered(block, line2, line3, sign);
             }
         }
@@ -148,7 +148,7 @@ class Listeners implements Listener {
         if(getRestockItChest(block) != null ) { //Make sure it's a RestockIt chest
             RestockIt.debug("RestockIt chest broken");
             if(ContUtils.isRICont(block)){ //Only remove the sign if we remove a main (non-auxiliary) chest
-                Block sign = SignUtils.getSignFromCont(block);
+                Sign sign = SignUtils.getSignFromCont(block);
                 RIperm perm = new RIperm(block, player, sign);
                 perm.setDestroyed();
                 
@@ -158,7 +158,7 @@ class Listeners implements Listener {
                     return;
                 }
                 
-                Scheduler.stopSchedule(sign); //Stop any schedules running for this block
+                Scheduler.stopSchedule(sign.getBlock()); //Stop any schedules running for this block
                 SignUtils.dropSign(sign); //Remove the sign
             }
             Inventory inv = ContUtils.getInventory(block);
@@ -166,8 +166,8 @@ class Listeners implements Listener {
             RestockIt.debug("Chest emptied");
         }
         else if(mat == Material.WALL_SIGN|| mat == Material.SIGN_POST) {
-            Block sign = block;
-            String line = ((Sign)sign.getState()).getLine(1);
+            Sign sign = (Sign)block.getState();
+            String line = sign.getLine(1);
             
             if(SignUtils.isRIsign(line)) {
                 RestockIt.debug("RestockIt sign broken");
@@ -185,7 +185,7 @@ class Listeners implements Listener {
                     Inventory inv = ContUtils.getInventory(chest);
                     inv.clear(); //Empty the chest
                     RestockIt.debug("Chest emptied");
-                    Scheduler.stopSchedule(sign); //Stop any schedules for this block
+                    Scheduler.stopSchedule((Block)sign); //Stop any schedules for this block
                 }
             }
         }
@@ -200,9 +200,9 @@ class Listeners implements Listener {
                 RestockIt.debug("RestockIt container opened");
                 Player player = event.getPlayer();
                 
-                Block sign = SignUtils.getSignFromCont(chest);
-                String line2 = ((Sign)sign.getState()).getLine(2);
-                String line3 = ((Sign)sign.getState()).getLine(3);
+                Sign sign = SignUtils.getSignFromCont(chest);
+                String line2 = sign.getLine(2);
+                String line3 = sign.getLine(3);
                 
                 eventTriggered(chest, line2, line3, sign);
                 

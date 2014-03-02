@@ -10,7 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.ItemStack;
 
-class Scheduler extends RestockIt {
+class Scheduler {
     
     private static final HashMap<Block, Integer> schedules = new HashMap<Block, Integer>(); //This stores task IDs (int) with the blocks they are running on
     
@@ -29,7 +29,7 @@ class Scheduler extends RestockIt {
                         return;
                     }
                     
-                    Block cont = ContUtils.getContFromSign(block);
+                    Block cont = ContUtils.getContFromSign((Sign)block.getState());
                     String line2 = ((Sign)block.getState()).getLine(2);
                     String line3 = ((Sign)block.getState()).getLine(3);
                     
