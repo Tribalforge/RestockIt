@@ -17,6 +17,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.cp23.restockit.enums.ListType;
+import org.cp23.restockit.enums.PermissionEnum;
 
 class Listeners implements Listener {
     
@@ -83,8 +84,7 @@ class Listeners implements Listener {
                 return;
             }
             
-            RIperm perm = new RIperm(block, player, line2);
-            perm.setCreated();
+            RIperm perm = new RIperm(block, player, line2, PermissionEnum.CREATED);
             
             if(!PlayerUtils.hasPermissions(perm)){ //They don't have permission
                 SignUtils.dropSign(sign);
@@ -110,7 +110,7 @@ class Listeners implements Listener {
                 return;
             }
             
-            perm.setBlacklistBypass();
+            perm.setPermission(PermissionEnum.BLACKLIST_BYPASS);
             
             //Check Blacklist
             if(RestockIt.isInList(SignUtils.getMaterial(line2), ListType.BLACKLIST) && !PlayerUtils.hasPermissions(perm)){
@@ -149,8 +149,7 @@ class Listeners implements Listener {
             RestockIt.debug("RestockIt chest broken");
             if(ContUtils.isRICont(block)){ //Only remove the sign if we remove a main (non-auxiliary) chest
                 Sign sign = SignUtils.getSignFromCont(block);
-                RIperm perm = new RIperm(block, player, sign);
-                perm.setDestroyed();
+                RIperm perm = new RIperm(block, player, sign, PermissionEnum.DESTROYED);
                 
                 if(!PlayerUtils.hasPermissions(perm)){
                     PlayerUtils.sendPlayerMessage(player, 9, perm.getBlockType());
@@ -173,8 +172,7 @@ class Listeners implements Listener {
                 RestockIt.debug("RestockIt sign broken");
                 Block chest = ContUtils.getContFromSign(sign);
                 if(chest != null){
-                    RIperm perm = new RIperm(chest, player, sign);
-                    perm.setDestroyed();
+                    RIperm perm = new RIperm(chest, player, sign, PermissionEnum.DESTROYED);
                     
                     if(!PlayerUtils.hasPermissions(perm)){
                         PlayerUtils.sendPlayerMessage(player, 9, perm.getBlockType());
@@ -206,8 +204,8 @@ class Listeners implements Listener {
                 
                 eventTriggered(chest, line2, line3, sign);
                 
-                RIperm perm = new RIperm(block, player, sign);
-                perm.setOpened();
+                RIperm perm = new RIperm(block, player, sign, PermissionEnum.OPENED);
+
                 if(!PlayerUtils.hasPermissions(perm)){
                     PlayerUtils.sendPlayerMessage(player, 8, perm.getBlockType());
                     event.setCancelled(true);
