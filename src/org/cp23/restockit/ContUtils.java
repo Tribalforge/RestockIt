@@ -11,6 +11,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.cp23.restockit.enums.ListType;
 
 class ContUtils extends RestockIt {
     
@@ -90,13 +91,13 @@ class ContUtils extends RestockIt {
     
     public static Block getDoubleChest(Block cont){
         //Return chest if there is one next to the block given
-        if(!isInList(cont.getType(), listType.DOUBLE)) return null; //Only continue for containers that can be doubled
+        if(!isInList(cont.getType(), ListType.DOUBLE)) return null; //Only continue for containers that can be doubled
         int x = cont.getX(), y = cont.getY(), z = cont.getZ();
         World world = cont.getWorld();
-        if(isInList(world.getBlockAt(x+1, y, z).getType(), listType.DOUBLE)) return world.getBlockAt(x+1, y, z);
-        if(isInList(world.getBlockAt(x-1, y, z).getType(), listType.DOUBLE)) return world.getBlockAt(x-1, y, z);
-        if(isInList(world.getBlockAt(x, y, z+1).getType(), listType.DOUBLE)) return world.getBlockAt(x, y, z+1);
-        if(isInList(world.getBlockAt(x, y, z-1).getType(), listType.DOUBLE)) return world.getBlockAt(x, y, z-1);
+        if(isInList(world.getBlockAt(x+1, y, z).getType(), ListType.DOUBLE)) return world.getBlockAt(x+1, y, z);
+        if(isInList(world.getBlockAt(x-1, y, z).getType(), ListType.DOUBLE)) return world.getBlockAt(x-1, y, z);
+        if(isInList(world.getBlockAt(x, y, z+1).getType(), ListType.DOUBLE)) return world.getBlockAt(x, y, z+1);
+        if(isInList(world.getBlockAt(x, y, z-1).getType(), ListType.DOUBLE)) return world.getBlockAt(x, y, z-1);
         return null;
     }
     

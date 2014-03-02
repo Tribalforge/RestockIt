@@ -1,23 +1,26 @@
 //Copyright (C) 2011-2014 Chris Price (xCP23x)
+//Portions Copyright (C) 2014 Dr Daniel Naylor (dualspiral)
 //This software uses the GNU GPL v2 license
 //See http://github.com/xCP23x/RestockIt/blob/master/README and http://github.com/xCP23x/RestockIt/blob/master/LICENSE for details
 
 package org.cp23.restockit;
 
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.logging.Level;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.cp23.restockit.enums.ListType;
+import org.cp23.restockit.permissionmanager.RIPermissionManager;
 
 public class RestockIt extends JavaPlugin {
     
-    static final Logger log = Logger.getLogger("Minecraft");
     public static RestockIt plugin;
     private static boolean debugEnabled = false;
     private static boolean schedDebugEnabled = false;
-    private static List<String> blacklist, singleContainers, doubleContainers, dispensers;
-    public enum listType{BLACKLIST,SINGLE,DOUBLE,DISPENSERS};
     
+    /**
+     * Runs when the plugin enables.
+     */
     @Override
     public void onEnable(){
         plugin = this;
@@ -26,63 +29,93 @@ public class RestockIt extends JavaPlugin {
         //Prepare the config
         this.getConfig().options().copyDefaults(true);
         this.saveConfig();
-        debugEnabled = this.getConfig().getBoolean("debugMessages");
-        schedDebugEnabled = this.getConfig().getBoolean("MOARdebug");
-        if(debugEnabled) log.info("[RestockIt] Basic debug messages enabled");
-        if(schedDebugEnabled) log.info("[RestockIt] Scheduler debug messages enabled");
-        
-        //Load config
-        blacklist = RestockIt.plugin.getConfig().getStringList("blacklist");
-        singleContainers = RestockIt.plugin.getConfig().getStringList("singleContainers");
-        doubleContainers = RestockIt.plugin.getConfig().getStringList("doubleContainers");
-        dispensers = RestockIt.plugin.getConfig().getStringList("dispensers");
-        
-        //Check config for errors (i.e. force any errors to be logged to console)
-        isInList(Material.AIR, listType.BLACKLIST);
-        isInList(Material.AIR, listType.SINGLE);
-        isInList(Material.AIR, listType.DOUBLE);
-        isInList(Material.AIR, listType.DISPENSERS);
+        this.loadConfig();
     }
     
+    /**
+     * Runs when the plugin disables.
+     */
     @Override
     public void onDisable(){
-    }
-    
-    public static boolean isContainer(Material mat){
-        return isInList(mat, listType.DISPENSERS) || isInList(mat, listType.SINGLE) || isInList(mat, listType.DOUBLE);
-    }
-    
-    public static boolean isInList(Material mat, listType type){
-        List<String> list;
-        String listName;
+        // Clear the lists in the enums.
+        ListType.BLACKLIST.getList().clear();
+        ListType.SINGLE.getList().clear();
+        ListType.DOUBLE.getList().clear();
+        ListType.DISPENSERS.getList().clear();
         
-        switch(type){
-            case BLACKLIST:
-                list = blacklist;
-                listName = "blacklist";
-                break;
-            case SINGLE:
-                list = singleContainers;
-                listName = "singleContainers list";
-                break;
-            case DOUBLE:
-                list = doubleContainers;
-                listName = "doubleContainers list";
-                break;
-            case DISPENSERS:
-                list = dispensers;
-                listName = "dispensers list";
-                break;
-            default:
-                return false;
+        // Clear the permissions manager.
+        RIPermissionManager.clearPermissionsManager();
+    }
+    
+    /**
+     * Loads the config file.
+     */
+    public void loadConfig() {
+        // Clear the lists in the enums.
+        ListType.BLACKLIST.getList().clear();
+        ListType.SINGLE.getList().clear();
+        ListType.DOUBLE.getList().clear();
+        ListType.DISPENSERS.getList().clear();
+        
+        //Load config
+        ListType.BLACKLIST.getList().addAll(RestockIt.plugin.getConfig().getStringList("blacklist"));
+        ListType.SINGLE.getList().addAll(RestockIt.plugin.getConfig().getStringList("singleContainers"));
+        ListType.DOUBLE.getList().addAll(RestockIt.plugin.getConfig().getStringList("doubleContainers"));
+        ListType.DISPENSERS.getList().addAll(RestockIt.plugin.getConfig().getStringList("dispensers"));
+        
+        //Check config for errors (i.e. force any errors to be logged to console)
+        isInList(Material.AIR, ListType.BLACKLIST);
+        isInList(Material.AIR, ListType.SINGLE);
+        isInList(Material.AIR, ListType.DOUBLE);
+        isInList(Material.AIR, ListType.DISPENSERS);
+        
+        // Check for debugging.
+        debugEnabled = this.getConfig().getBoolean("debugMessages");
+        schedDebugEnabled = this.getConfig().getBoolean("MOARdebug");
+        if(debugEnabled) {
+            getLogger().info("Basic debug messages enabled");
         }
         
-        int size = list.size();
-        for(int x = 0; x<size; x++) {
-            String blItem = list.get(x);
+        if(schedDebugEnabled) {
+            getLogger().info("Scheduler debug messages enabled");
+        }
+    }
+    
+    /**
+     * Reloads the config file, and loads the new values in.
+     */
+    @Override
+    public void reloadConfig() {
+        super.reloadConfig();
+        this.loadConfig();
+    }
+    
+    /**
+     * Checks to see if a material is a container.
+     * @param mat The material to check.
+     * @return <code>true</code> if so. 
+     */
+    public static boolean isContainer(Material mat){
+        return isInList(mat, ListType.DISPENSERS) || isInList(mat, ListType.SINGLE) || isInList(mat, ListType.DOUBLE);
+    }
+    
+    /**
+     * Gets whether the specified material is in the specified list.
+     * @param mat The material to check.
+     * @param type The list to check.
+     * @return <code>true</code> if so.
+     */
+    public static boolean isInList(Material mat, ListType type){
+        List<String> list = type.getList();
+        
+        // For each item in the list...
+        for(String blItem : list) {
+            
+            // If we get an invalid item, warn the user.
             if(SignUtils.getType(blItem) <= 0) {
-                RestockIt.log.warning("[RestockIt] Error in " + listName + ": " + blItem + "not recognised - Ignoring");
-            } else if (mat.getId() == SignUtils.getType(blItem)){
+                RestockIt.plugin.getLogger().warning(String.format("Error in %s: %s not recognised - Ignoring", type.toString(), blItem));
+            } else if (mat.getId() == SignUtils.getType(blItem)) {
+                // If we get an item in the list, then return.
                 return true;
             }
         }
@@ -91,13 +124,13 @@ public class RestockIt extends JavaPlugin {
     
     public static void debug(String msg){
         if(debugEnabled == true){
-            RestockIt.log.info("[RestockIt][DEBUG]: "+msg);
+            RestockIt.plugin.getLogger().log(Level.INFO, "[DEBUG]: {0}", msg);
         }
     }
     
     public static void debugSched(String msg){
         if(schedDebugEnabled == true){
-            RestockIt.log.info("[RestockIt][SCHEDULER-DEBUG]: " +msg);
+            RestockIt.plugin.getLogger().log(Level.INFO, "[SCHEDULER-DEBUG]: {0}", msg);
         }
     }
 }

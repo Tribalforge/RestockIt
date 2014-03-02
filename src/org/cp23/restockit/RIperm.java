@@ -7,6 +7,7 @@ package org.cp23.restockit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.cp23.restockit.enums.ListType;
 
 class RIperm{
     
@@ -80,14 +81,14 @@ class RIperm{
         String type = getType();
         if(type==null) return null;
         
-        if(RestockIt.isInList(block.getType(), RestockIt.listType.SINGLE)) return pre + "chest" + type;
-        if(RestockIt.isInList(block.getType(), RestockIt.listType.DOUBLE)) return pre + "chest" + type;
+        if(RestockIt.isInList(block.getType(), ListType.SINGLE)) return pre + "chest" + type;
+        if(RestockIt.isInList(block.getType(), ListType.DOUBLE)) return pre + "chest" + type;
         return getPerm();
     }
     
     public String getBlockType(){
         if(line.equalsIgnoreCase("incinerator")) return "incinerator";
-        if(RestockIt.isInList(block.getType(), RestockIt.listType.DISPENSERS)) return "dispenser";
+        if(RestockIt.isInList(block.getType(), ListType.DISPENSERS)) return "dispenser";
         if(RestockIt.isContainer(block.getType())) return "container";
         return block.getType().toString().toLowerCase();
     }

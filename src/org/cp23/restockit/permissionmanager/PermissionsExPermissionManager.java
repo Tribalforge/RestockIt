@@ -7,7 +7,6 @@ package org.cp23.restockit.permissionmanager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.cp23.restockit.RestockIt;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 

@@ -6,7 +6,6 @@
 package org.cp23.restockit.permissionmanager;
 
 import java.util.logging.Level;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.cp23.restockit.RestockIt;
 
@@ -52,6 +51,14 @@ public abstract class RIPermissionManager {
         }
         
         return permissionsManager;
+    }
+    
+    /**
+     * Clears the permissions manager, forcing it to be re-registered on the 
+     * next pass.
+     */
+    public static void clearPermissionsManager() {
+        permissionsManager = null;
     }
     
     /**
